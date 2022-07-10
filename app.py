@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+from html import unescape
+from flask import Flask, request, jsonify, escape
 from flask_cors import cross_origin
 from flaskext.mysql import MySQL
 import json
@@ -79,9 +80,10 @@ def create_request():
         _json = request.json
         _product_id = _json['product_id']
         _email_address = _json['email_address']
-        _first_name = _json['first_name']
-        _last_name = _json['last_name']	
+        _first_name = escape(_json['first_name'])
+        _last_name = escape(_json['last_name']	)
         _price_at_moment = _json['price_at_moment']
+
         if _product_id and _email_address and _first_name and _last_name and request.method == 'POST':
             conn = mysql.connect()
             cursor = conn.cursor()		
@@ -94,8 +96,8 @@ def create_request():
                         price_at_moment)
             VALUES      (%s,
                         %s,
-                        %s,
-                        %s,
+                        '%s',
+                        '%s',
                         %s) 
             '''
             bindData = (_product_id, _email_address, _first_name, _last_name, _price_at_moment)            
@@ -144,13 +146,14 @@ def updateStatus(customer_id):
 #Method to send the email out once it has met the criteria, will take in values from the dictionary to compose the message
 def sendEmail(row):
     rec_email = str(row['email_address'])
-    full_name = str(row['full_name'])
+    first_name = unescape(str(row['first_name'])).replace("'", "")
+    last_name = unescape(str(row['last_name'])).replace("'", "")
     product_name = str(row['product_brand']) + ' ' + str(row['product_name'])
     price_at_moment = str(row['price_at_moment'])
     current_sale_price = str(row['current_sale_price'])
     sale = str(row['sale'])
     subject = product_name + ' is on sale!'
-    body = "Hello " + full_name + ", \nThe item " + product_name + " is currently on sale for $" + current_sale_price + ", saving you $" + sale + "!"
+    body = "Hello " + first_name + ' ' + last_name + ", \nThe item " + product_name + " is currently on sale for $" + current_sale_price + ", saving you $" + sale + "!"
     message = EmailMessage()
     message.set_content(body)
     message['Subject'] = subject
@@ -179,7 +182,8 @@ def run_check():
         SELECT  a.customer_id,
 	            a.product_id,
                 a.email_address,
-	            CONCAT(a.first_name, ' ', a.last_name) AS full_name,
+	            a.first_name,
+                a.last_name,
                 a.price_at_moment,
                 CAST((b.product_price - (b.product_price * b.product_discount_pctg)) as DECIMAL(10,2)) as current_sale_price,
                 CAST((a.price_at_moment - (b.product_price - (b.product_price * b.product_discount_pctg))) as DECIMAL(10,2)) as sale,
