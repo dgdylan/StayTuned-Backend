@@ -1,8 +1,4 @@
 # StayTuned Engineering Exercise - Back-End
-## Project Objective
-Consider an ecommerce store that wants to add the following feature to their product pages:
-give customers the ability to provide their email address and be notified via email when a product
-drops in price by more than a dollar.
 
 ## Back-end Objective
 Build a back-end demo that demonstrates what data you think should be stored to
