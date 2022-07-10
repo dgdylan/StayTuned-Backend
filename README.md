@@ -18,6 +18,7 @@ For the database, product information is stored in the product table, and email 
 ## Technologies Used
 ### MySQL
 MySQL database is used to store the product information and email requests that are coming in from the API.
+To build the database, use the Scripts.sql file that contains the necessary queries.
 
 ### Flask (Python)
 Flask is used to:
